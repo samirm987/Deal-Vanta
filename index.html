@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>DealVanta — Smart Affiliate Store</title>
+<style>
+:root{
+  --bg:#f6f7fb;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;
+  --dark:#111827;--dark2:#1f2937;--brand:#ff5a1f;--brand2:#ff8a00;
+  --green:#16a34a;--red:#ef4444;--shadow:0 14px 40px rgba(17,24,39,.09);
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+a{text-decoration:none;color:inherit}
+.topbar{background:#0b1220;color:#dbeafe;text-align:center;font-size:12px;padding:8px 12px}
+.header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.head{max-width:1380px;margin:auto;padding:12px 18px;display:flex;gap:14px;align-items:center}
+.logo{display:flex;align-items:center;gap:10px;min-width:190px;font-weight:950}
+.logoMark{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#ff3d00,#ff9d00);box-shadow:0 10px 24px rgba(255,90,31,.28)}
+.logoText b{font-size:19px;display:block;letter-spacing:-.4px}.logoText small{color:var(--muted);font-size:10px}
+.search{height:46px;flex:1;display:flex;background:#f3f4f6;border:1px solid var(--line);border-radius:13px;overflow:hidden}
+.search input{flex:1;border:0;background:transparent;padding:0 15px;outline:0}.search button{width:52px;border:0;background:transparent}
+.headerBtns{display:flex;gap:8px}.iconBtn{height:44px;min-width:44px;border:1px solid var(--line);background:#fff;border-radius:12px;font-weight:850}.cartBtn{position:relative}.cartCount{position:absolute;right:-5px;top:-6px;background:var(--red);color:#fff;border-radius:999px;font-size:10px;padding:3px 6px}
+.hero{max-width:1380px;margin:20px auto 12px;padding:0 18px}
+.heroBox{border-radius:28px;overflow:hidden;min-height:340px;color:#fff;background:
+radial-gradient(circle at 80% 20%,rgba(255,255,255,.22),transparent 24%),
+linear-gradient(120deg,#111827,#1f3a68 52%,#ff5a1f);display:grid;grid-template-columns:1.15fr .85fr;box-shadow:0 24px 70px rgba(17,24,39,.18)}
+.heroText{padding:52px}.eyebrow{font-size:12px;font-weight:900;letter-spacing:1.5px;color:#ffd9bf}
+.hero h1{font-size:clamp(34px,5vw,64px);line-height:.98;letter-spacing:-2.5px;margin:12px 0 18px;max-width:720px}
+.hero p{max-width:680px;color:#e5e7eb;line-height:1.7;font-size:15px}
+.heroActions{display:flex;gap:10px;margin-top:25px;flex-wrap:wrap}
+.primary{border:0;border-radius:12px;padding:13px 19px;font-weight:950;background:linear-gradient(135deg,#ffb000,#ff6a00);color:#171717;box-shadow:0 12px 25px rgba(255,106,0,.25)}
+.secondary{border:1px solid rgba(255,255,255,.28);border-radius:12px;padding:12px 18px;font-weight:850;background:rgba(255,255,255,.1);color:#fff}
+.heroVisual{display:grid;place-items:center;position:relative}
+.mockPhone{width:min(320px,80%);border-radius:28px;background:#fff;padding:14px;box-shadow:0 30px 70px rgba(0,0,0,.3);transform:rotate(4deg)}
+.mockTop{height:28px;background:#f3f4f6;border-radius:10px;margin-bottom:10px}
+.mockImg{height:160px;border-radius:18px;background:linear-gradient(135deg,#f3f4f6,#e5e7eb);display:grid;place-items:center;font-size:70px}
+.mockLine{height:11px;background:#e5e7eb;border-radius:99px;margin-top:12px}.mockLine.short{width:65%}
+.mockBuy{height:38px;border-radius:10px;background:#ff7a00;margin-top:14px}
+
+.main{max-width:1380px;margin:auto;padding:0 18px 50px}
+.trust{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 22px}
+.trustItem{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;box-shadow:var(--shadow)}
+.trustItem b{display:block;font-size:13px}.trustItem span{color:var(--muted);font-size:11px}
+.toolbar{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+.toolbarTop{display:flex;justify-content:space-between;gap:12px;align-items:center}.toolbar h2{margin:0;font-size:22px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.select,.miniInput{border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;outline:0}
+.chips{display:flex;gap:8px;overflow:auto;padding-bottom:3px}.chip{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:9px 14px;font-weight:800}.chip.active{background:#111827;color:#fff;border-color:#111827}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin-top:16px}
+.card{position:relative;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);transition:.2s transform,.2s box-shadow}
+.card:hover{transform:translateY(-4px);box-shadow:0 22px 50px rgba(17,24,39,.14)}
+.productImage{height:250px;background:#f3f4f6;position:relative;display:grid;place-items:center;overflow:hidden}
+.productImage img{width:100%;height:100%;object-fit:contain;padding:14px;transition:transform .25s}.card:hover .productImage img{transform:scale(1.04)}
+.placeholder{font-size:75px;opacity:.65}.sourceBadge{position:absolute;left:12px;top:12px;background:#111827;color:#fff;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:900}.discount{position:absolute;right:12px;top:12px;background:#16a34a;color:#fff;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:900}
+.cardBody{padding:14px}.rating{color:#f59e0b;font-size:12px;font-weight:900}.rating span{color:#6b7280;font-weight:700;margin-left:3px}.title{font-size:15px;font-weight:900;line-height:1.35;margin:7px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.desc{font-size:12px;color:var(--muted);line-height:1.5;min-height:36px}.priceRow{display:flex;align-items:baseline;gap:8px;margin-top:10px}.price{font-size:21px;font-weight:950}.mrp{text-decoration:line-through;color:#9ca3af;font-size:12px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.buy,.add{border:0;border-radius:10px;padding:11px 8px;font-weight:950}.buy{background:linear-gradient(135deg,#ffbd00,#ff7600);color:#171717}.add{background:#111827;color:#fff}.wish{position:absolute;right:11px;bottom:11px;width:35px;height:35px;border-radius:50%;border:1px solid var(--line);background:#fff;z-index:2}
+
+.footer{background:#0b1220;color:#d1d5db;padding:40px 18px}.footerInner{max-width:1380px;margin:auto;display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap}.footer b{color:#fff}.footer small{color:#94a3b8}
+.drawer,.modal{position:fixed;inset:0;background:rgba(3,7,18,.62);z-index:500;display:none}.drawer.open,.modal.open{display:block}
+.drawerPanel{position:absolute;right:0;top:0;height:100%;width:min(460px,100%);background:#fff;overflow:auto;padding:20px;box-shadow:-25px 0 70px rgba(0,0,0,.25)}
+.modalPanel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(850px,94vw);max-height:92vh;overflow:auto;background:#fff;border-radius:24px;padding:22px;box-shadow:0 30px 100px rgba(0,0,0,.35)}
+.modalHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px}.close{border:0;background:#f3f4f6;width:38px;height:38px;border-radius:50%;font-size:20px}
+.cartItem{display:grid;grid-template-columns:72px 1fr auto;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.cartImg{width:72px;height:72px;border-radius:12px;background:#f3f4f6;object-fit:contain}.qty{display:flex;align-items:center;gap:6px;margin-top:7px}.qty button{width:26px;height:26px;border:1px solid var(--line);background:#fff;border-radius:7px}.cartBottom{position:sticky;bottom:0;background:#fff;padding-top:15px;border-top:1px solid var(--line);margin-top:15px}.cartTotal{display:flex;justify-content:space-between;font-weight:950;font-size:20px;margin-bottom:12px}.fullBtn{width:100%;border:0;border-radius:12px;padding:14px;font-weight:950;background:#111827;color:#fff}
+
+.adminGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:900}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);border-radius:11px;padding:11px;outline:0;background:#fff}.field textarea{min-height:90px;resize:vertical}
+.importBox{background:linear-gradient(135deg,#fff7ed,#eff6ff);border:1px solid #fed7aa;border-radius:18px;padding:16px;margin-bottom:18px}.importRow{display:flex;gap:8px}.importRow input{flex:1;border:1px solid var(--line);border-radius:11px;padding:12px}.importBtn{border:0;border-radius:11px;background:#111827;color:#fff;padding:12px 15px;font-weight:950}.status{font-size:11px;color:var(--muted);margin-top:8px;min-height:15px}
+.previewBox{display:grid;grid-template-columns:160px 1fr;gap:14px;margin-top:12px}.previewBox img{width:160px;height:160px;object-fit:contain;background:#f3f4f6;border-radius:15px;border:1px solid var(--line)}
+.adminList{margin-top:22px}.adminRow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;margin-top:8px}.adminBtns{display:flex;gap:6px}.smallBtn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 9px;font-weight:800}.danger{color:#b91c1c;background:#fff1f2}
+.note{font-size:11px;color:#64748b;line-height:1.55;background:#f8fafc;padding:10px;border-radius:10px;margin-top:10px}
+.toast{position:fixed;left:50%;bottom:25px;transform:translateX(-50%);background:#111827;color:#fff;padding:11px 15px;border-radius:10px;z-index:900;display:none;font-size:13px;font-weight:800;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+
+@media(max-width:1050px){.grid{grid-template-columns:repeat(3,1fr)}.logo{min-width:auto}.heroBox{grid-template-columns:1fr}.heroVisual{display:none}.trust{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){
+ .head{padding:9px 10px;flex-wrap:wrap}.logo{width:100%}.search{order:3;width:100%;flex-basis:100%}.headerBtns{position:absolute;right:10px;top:10px}
+ .logoText{padding-right:100px}.hero{padding:0 8px}.heroBox{min-height:0;border-radius:22px}.heroText{padding:32px 23px}.hero h1{font-size:39px;letter-spacing:-1.5px}
+ .main{padding:0 8px 35px}.grid{grid-template-columns:repeat(2,1fr);gap:9px}.productImage{height:175px}.cardBody{padding:10px}.title{font-size:13px}.desc{font-size:11px}.price{font-size:17px}.actions{grid-template-columns:1fr}.add{display:none}
+ .trust{grid-template-columns:1fr 1fr;gap:7px}.trustItem{padding:10px}.toolbarTop{align-items:flex-start}.toolbar h2{font-size:19px}.previewBox{grid-template-columns:1fr}.previewBox img{width:100%;height:190px}.adminGrid{grid-template-columns:1fr}.field.full{grid-column:auto}
+}
+</style>
+</head>
+<body>
+<div class="topbar">⚡ Smart Affiliate Store • Meesho • Amazon • Flipkart • One-click shopping</div>
+
+<header class="header">
+  <div class="head">
+    <a class="logo" href="#" onclick="scrollTo({top:0,behavior:'smooth'});return false">
+      <span class="logoMark">DV</span><span class="logoText"><b>DealVanta</b><small>Smart Affiliate Shopping</small></span>
+    </a>
+    <div class="search"><input id="search" placeholder="Search products, brands, categories..." oninput="renderProducts()"><button onclick="renderProducts()">🔍</button></div>
+    <div class="headerBtns">
+      <button class="iconBtn" onclick="openAdmin()" title="Owner">⚙️</button>
+      <button class="iconBtn cartBtn" onclick="openCart()">🛒<span class="cartCount" id="cartCount">0</span></button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+ <div class="heroBox">
+  <div class="heroText">
+    <div class="eyebrow">SMART AFFILIATE MARKETPLACE</div>
+    <h1>Best products.<br>Better deals.</h1>
+    <p>Discover products from trusted marketplaces in one stylish store. Add your affiliate link, publish the product and send shoppers directly to the official marketplace checkout page.</p>
+    <div class="heroActions"><button class="primary" onclick="document.getElementById('catalog').scrollIntoView({behavior:'smooth'})">Explore Deals →</button><button class="secondary" onclick="openAdmin()">Owner Dashboard</button></div>
+  </div>
+  <div class="heroVisual">
+   <div class="mockPhone"><div class="mockTop"></div><div class="mockImg">🛍️</div><div class="mockLine"></div><div class="mockLine short"></div><div class="mockBuy"></div></div>
+  </div>
+ </div>
+</section>
+
+<main class="main" id="catalog">
+ <div class="trust">
+   <div class="trustItem">🔗 <b>Official affiliate links</b><span>Buy buttons use your exact affiliate URL.</span></div>
+   <div class="trustItem">⭐ <b>Ratings & reviews</b><span>Show marketplace/product rating data.</span></div>
+   <div class="trustItem">🛒 <b>Smart cart</b><span>Save products before visiting the marketplace.</span></div>
+   <div class="trustItem">📱 <b>Mobile-first</b><span>Designed for fast shopping on phones.</span></div>
+ </div>
+
+ <section class="toolbar">
+  <div class="toolbarTop"><h2>🔥 Featured Products</h2><span id="resultCount" style="font-size:12px;color:#6b7280"></span></div>
+  <div class="controls">
+    <div class="chips" id="categoryChips"></div>
+    <select class="select" id="sort" onchange="renderProducts()"><option value="featured">Sort: Featured</option><option value="low">Price: Low → High</option><option value="high">Price: High → Low</option><option value="rating">Rating</option></select>
+  </div>
+ </section>
+ <section class="grid" id="productGrid"></section>
+</main>
+
+<footer class="footer"><div class="footerInner"><div><b>DealVanta</b><br><small>Smart affiliate shopping marketplace.</small></div><div><small>© <span id="year"></span> DealVanta. Affiliate disclosure: purchases may earn a commission.</small></div></div></footer>
+
+<!-- CART -->
+<div class="drawer" id="cartDrawer" onclick="if(event.target===this)closeCart()">
+ <div class="drawerPanel">
+  <div class="modalHead"><div><h2 style="margin:0">🛒 Your Cart</h2><small style="color:#6b7280">Choose products, then continue to the marketplace.</small></div><button class="close" onclick="closeCart()">×</button></div>
+  <div id="cartItems"></div>
+  <div class="cartBottom"><div class="cartTotal"><span>Estimated total</span><span id="cartTotal">₹0</span></div><button class="fullBtn" onclick="checkoutCart()">Continue to marketplace →</button><div class="note">Affiliate stores normally cannot complete marketplace checkout inside the store. This button opens each selected product using its saved affiliate link.</div></div>
+ </div>
+</div>
+
+<!-- OWNER -->
+<div class="modal" id="adminModal" onclick="if(event.target===this)closeAdmin()">
+ <div class="modalPanel">
+  <div class="modalHead"><div><small style="color:#6b7280;font-weight:900">PRIVATE OWNER AREA</small><h2 style="margin:4px 0">Website Dashboard</h2></div><button class="close" onclick="closeAdmin()">×</button></div>
+
+  <div class="importBox">
+   <b>⚡ Smart Affiliate Link Importer</b>
+   <div style="font-size:12px;color:#64748b;margin:5px 0 10px">Paste a Meesho, Amazon or Flipkart affiliate/product URL. The importer will try to pull title, image, description, price, rating and other metadata automatically.</div>
+   <div class="importRow"><input id="affiliateUrl" placeholder="Paste your affiliate link here..."><button class="importBtn" onclick="smartImport()">Auto Fill</button></div>
+   <div class="status" id="importStatus"></div>
+   <div class="note">Important: Amazon/Meesho/Flipkart may block direct scraping. This static website uses metadata extraction when available. For guaranteed automatic imports, connect the optional server/API endpoint described in README.</div>
+  </div>
+
+  <div class="adminGrid">
+   <div class="field"><label>Marketplace</label><select id="pSource"><option>Amazon</option><option>Flipkart</option><option>Meesho</option><option>Other</option></select></div>
+   <div class="field"><label>Affiliate / Buy Link *</label><input id="pLink" placeholder="https://...your-affiliate-link..."></div>
+   <div class="field full"><label>Product Title *</label><input id="pTitle" placeholder="Product title"></div>
+   <div class="field"><label>Price</label><input id="pPrice" placeholder="₹999"></div>
+   <div class="field"><label>MRP</label><input id="pMrp" placeholder="₹1,499"></div>
+   <div class="field"><label>Rating</label><input id="pRating" type="number" min="0" max="5" step=".1" placeholder="4.5"></div>
+   <div class="field"><label>Reviews</label><input id="pReviews" placeholder="1,234"></div>
+   <div class="field"><label>Category</label><input id="pCategory" placeholder="Electronics, Fashion..."></div>
+   <div class="field"><label>Discount</label><input id="pDiscount" placeholder="33% OFF"></div>
+   <div class="field full"><label>Product Image URL</label><input id="pImage" placeholder="https://..."><small style="color:#64748b">You can also paste a direct image URL.</small></div>
+   <div class="field full"><label>Description</label><textarea id="pDesc" placeholder="Product description..."></textarea></div>
+  </div>
+  <div class="previewBox"><img id="pPreview" src="" alt="Preview"><div><b>Live preview</b><p id="previewTitle" style="font-weight:900">Your product will appear here.</p><small style="color:#64748b">Buy Now will always use the saved affiliate link.</small></div></div>
+  <div style="display:flex;gap:8px;margin-top:15px;flex-wrap:wrap"><button class="primary" onclick="saveProduct()">＋ Publish Product</button><button class="select" onclick="clearForm()">Clear</button></div>
+  <div class="adminList"><h3>Published Products</h3><div id="adminProducts"></div></div>
+ </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY="dealvanta_affiliate_store_v1";
+const defaultProducts=[
+ {id:1,source:"Amazon",link:"https://www.amazon.in/",title:"Premium Wireless Headphones",price:"₹1,999",mrp:"₹3,999",rating:4.5,reviews:"2,431",category:"Electronics",discount:"50% OFF",image:"",desc:"Comfortable wireless headphones with a premium everyday design."},
+ {id:2,source:"Flipkart",link:"https://www.flipkart.com/",title:"Smart Everyday Backpack",price:"₹799",mrp:"₹1,499",rating:4.3,reviews:"1,204",category:"Fashion",discount:"47% OFF",image:"",desc:"A practical backpack for work, college and daily travel."},
+ {id:3,source:"Meesho",link:"https://www.meesho.com/",title:"Stylish Casual Sneakers",price:"₹699",mrp:"₹1,299",rating:4.2,reviews:"865",category:"Fashion",discount:"46% OFF",image:"",desc:"Lightweight casual sneakers designed for everyday comfort."},
+ {id:4,source:"Amazon",link:"https://www.amazon.in/",title:"Fast Charging Power Bank",price:"₹1,099",mrp:"₹1,899",rating:4.6,reviews:"5,821",category:"Electronics",discount:"42% OFF",image:"",desc:"Portable fast-charging power bank for everyday devices."}
+];
+let store=JSON.parse(localStorage.getItem(KEY)||"null")||{products:defaultProducts,categories:["All","Electronics","Fashion","Home","Beauty","Grocery"],cart:[]};
+let currentCat="All",editingId=null;
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+function save(){localStorage.setItem(KEY,JSON.stringify(store))}
+function money(v){let n=parseFloat(String(v||"").replace(/[^0-9.]/g,""));return isNaN(n)?0:n}
+function sourceClass(s){return String(s||"Other").toLowerCase()}
+
+function renderCategories(){
+ $("categoryChips").innerHTML=store.categories.map(c=>`<button class="chip ${currentCat===c?"active":""}" onclick="setCat('${esc(c)}',this)">${esc(c)}</button>`).join("");
+}
+function setCat(c){currentCat=c;renderCategories();renderProducts()}
+function renderProducts(){
+ const q=$("search").value.toLowerCase().trim(),sort=$("sort").value;
+ let list=store.products.filter(p=>(currentCat==="All"||p.category===currentCat)&&(!q||[p.title,p.desc,p.category,p.source].join(" ").toLowerCase().includes(q)));
+ if(sort==="low")list.sort((a,b)=>money(a.price)-money(b.price));
+ if(sort==="high")list.sort((a,b)=>money(b.price)-money(a.price));
+ if(sort==="rating")list.sort((a,b)=>(+b.rating||0)-(+a.rating||0));
+ $("resultCount").textContent=list.length+" products";
+ $("productGrid").innerHTML=list.map(cardHTML).join("")||`<div style="grid-column:1/-1;background:#fff;border:1px solid var(--line);border-radius:18px;padding:40px;text-align:center;color:#6b7280">No products found.</div>`;
+}
+function stars(r){
+ const n=Math.max(0,Math.min(5,Math.round(+r||0)));
+ return "★".repeat(n)+"☆".repeat(5-n);
+}
+function cardHTML(p){
+ return `<article class="card">
+   <button class="wish" onclick="toggleWish(${p.id})">♡</button>
+   <div class="productImage">${p.image?`<img src="${esc(p.image)}" alt="${esc(p.title)}" onerror="this.style.display='none'">`:`<div class="placeholder">🛍️</div>`}
+     <span class="sourceBadge">${esc(p.source||"Other")}</span>${p.discount?`<span class="discount">${esc(p.discount)}</span>`:""}
+   </div>
+   <div class="cardBody">
+    <div class="rating">${stars(p.rating)} <span>${p.rating||"—"} (${esc(p.reviews||"0")})</span></div>
+    <div class="title">${esc(p.title)}</div>
+    <div class="desc">${esc(p.desc||"Product details available on the marketplace.")}</div>
+    <div class="priceRow"><span class="price">${esc(p.price||"See price")}</span>${p.mrp?`<span class="mrp">${esc(p.mrp)}</span>`:""}</div>
+    <div class="actions"><button class="buy" onclick="buyNow(${p.id})">Buy Now ↗</button><button class="add" onclick="addCart(${p.id})">＋ Add Cart</button></div>
+   </div>
+ </article>`;
+}
+function buyNow(id){
+ const p=store.products.find(x=>x.id===id);if(!p||!p.link)return;
+ window.open(p.link,"_blank","noopener,noreferrer");
+}
+function addCart(id){
+ const found=store.cart.find(x=>x.id===id);if(found)found.qty++;else store.cart.push({id,qty:1});
+ save();renderCart();toast("Added to cart");
+}
+function removeCart(id){store.cart=store.cart.filter(x=>x.id!==id);save();renderCart()}
+function changeQty(id,d){let x=store.cart.find(x=>x.id===id);if(!x)return;x.qty+=d;if(x.qty<1)removeCart(id);else{save();renderCart()}}
+function renderCart(){
+ $("cartCount").textContent=store.cart.reduce((a,x)=>a+x.qty,0);
+ $("cartItems").innerHTML=store.cart.map(x=>{let p=store.products.find(y=>y.id===x.id);if(!p)return "";
+ return `<div class="cartItem"><img class="cartImg" src="${esc(p.image||"")}" onerror="this.style.display='none'"><div><b>${esc(p.title)}</b><div style="color:#6b7280;font-size:12px">${esc(p.price||"")}</div><div class="qty"><button onclick="changeQty(${p.id},-1)">−</button><b>${x.qty}</b><button onclick="changeQty(${p.id},1)">+</button><button class="smallBtn danger" onclick="removeCart(${p.id})">Remove</button></div></div><b>${esc(p.price||"")}</b></div>`}).join("")||`<div style="padding:35px 5px;text-align:center;color:#6b7280">Your cart is empty.</div>`;
+ const total=store.cart.reduce((a,x)=>{let p=store.products.find(y=>y.id===x.id);return a+money(p?.price)*x.qty},0);
+ $("cartTotal").textContent=total?"₹"+total.toLocaleString("en-IN"):"₹0";
+}
+function checkoutCart(){
+ if(!store.cart.length){toast("Cart is empty");return}
+ // Open the first selected affiliate product; user can continue through the marketplace.
+ const first=store.products.find(p=>p.id===store.cart[0].id);
+ if(first?.link)window.open(first.link,"_blank","noopener,noreferrer");
+}
+function openCart(){$("cartDrawer").classList.add("open");renderCart()}
+function closeCart(){$("cartDrawer").classList.remove("open")}
+function openAdmin(){$("adminModal").classList.add("open");renderAdmin();clearForm()}
+function closeAdmin(){$("adminModal").classList.remove("open")}
+function toast(t){$("toast").textContent=t;$("toast").style.display="block";clearTimeout(window.__toast);window.__toast=setTimeout(()=>$("toast").style.display="none",2200)}
+
+async function smartImport(){
+ const url=$("affiliateUrl").value.trim(); if(!url){$("importStatus").textContent="Paste an affiliate link first.";return}
+ $("importStatus").textContent="⏳ Trying to read product metadata...";
+ $("pLink").value=url;
+ // Marketplace detection
+ const low=url.toLowerCase();
+ if(low.includes("amazon"))$("pSource").value="Amazon";
+ else if(low.includes("flipkart"))$("pSource").value="Flipkart";
+ else if(low.includes("meesho"))$("pSource").value="Meesho";
+ else $("pSource").value="Other";
+ try{
+   const endpoint="https://api.microlink.io/?url="+encodeURIComponent(url)+"&meta=true";
+   const res=await fetch(endpoint,{headers:{"Accept":"application/json"}});
+   if(!res.ok)throw new Error("metadata service unavailable");
+   const j=await res.json(),d=j.data||{};
+   const title=d.title||d.meta?.title||"";
+   const desc=d.description||d.meta?.description||"";
+   const image=d.image?.url||d.logo?.url||d.meta?.image||"";
+   if(title)$("pTitle").value=title;
+   if(desc)$("pDesc").value=desc;
+   if(image)$("pImage").value=image;
+   if(d.url)$("pLink").value=url;
+   $("pPreview").src=image||"";
+   $("previewTitle").textContent=title||"Metadata found — fill remaining fields if needed.";
+   $("importStatus").textContent=(title||image)?"✅ Product metadata imported. Check the fields before publishing.":"⚠️ The marketplace blocked metadata. Fill details manually.";
+ }catch(e){
+   $("importStatus").textContent="⚠️ Automatic metadata could not be read. The affiliate link is saved; enter product details manually.";
+ }
+}
+["pTitle","pPrice","pMrp","pRating","pReviews","pCategory","pDiscount","pImage","pDesc","pLink"].forEach(id=>document.addEventListener("input",e=>{if(e.target.id===id)livePreview()}));
+function livePreview(){ $("previewTitle").textContent=$("pTitle").value||"Your product will appear here."; if($("pImage").value)$("pPreview").src=$("pImage").value; }
+function clearForm(){
+ editingId=null;
+ ["affiliateUrl","pLink","pTitle","pPrice","pMrp","pRating","pReviews","pCategory","pDiscount","pImage","pDesc"].forEach(id=>$(id).value="");
+ $("pSource").value="Amazon";$("pPreview").src="";$("previewTitle").textContent="Your product will appear here.";$("importStatus").textContent="";
+}
+function saveProduct(){
+ const link=$("pLink").value.trim(),title=$("pTitle").value.trim();
+ if(!link||!title){alert("Affiliate / Buy Link and Product Title are required.");return}
+ const p={id:editingId||Date.now(),source:$("pSource").value,link,title,price:$("pPrice").value.trim(),mrp:$("pMrp").value.trim(),rating:$("pRating").value,reviews:$("pReviews").value.trim(),category:$("pCategory").value.trim()||"Other",discount:$("pDiscount").value.trim(),image:$("pImage").value.trim(),desc:$("pDesc").value.trim()};
+ if(!store.categories.includes(p.category))store.categories.push(p.category);
+ const i=store.products.findIndex(x=>x.id===p.id);if(i>=0)store.products[i]=p;else store.products.unshift(p);
+ save();renderCategories();renderProducts();renderAdmin();clearForm();toast("Product published successfully");
+}
+function renderAdmin(){
+ $("adminProducts").innerHTML=store.products.map(p=>`<div class="adminRow"><div><b>${esc(p.title)}</b><br><small style="color:#6b7280">${esc(p.source)} • ${esc(p.price||"No price")}</small></div><div class="adminBtns"><button class="smallBtn" onclick="editProduct(${p.id})">Edit</button><button class="smallBtn danger" onclick="deleteProduct(${p.id})">Delete</button></div></div>`).join("");
+}
+function editProduct(id){
+ const p=store.products.find(x=>x.id===id);if(!p)return;editingId=id;
+ $("pSource").value=p.source||"Other";$("pLink").value=p.link||"";$("pTitle").value=p.title||"";$("pPrice").value=p.price||"";$("pMrp").value=p.mrp||"";
+ $("pRating").value=p.rating||"";$("pReviews").value=p.reviews||"";$("pCategory").value=p.category||"";$("pDiscount").value=p.discount||"";$("pImage").value=p.image||"";$("pDesc").value=p.desc||"";
+ $("pPreview").src=p.image||"";$("previewTitle").textContent=p.title||"";
+}
+function deleteProduct(id){if(!confirm("Delete this product?"))return;store.products=store.products.filter(p=>p.id!==id);store.cart=store.cart.filter(x=>x.id!==id);save();renderProducts();renderCart();renderAdmin();toast("Product deleted")}
+function toggleWish(id){toast("Saved to wishlist")}
+$("year").textContent=new Date().getFullYear();
+renderCategories();renderProducts();renderCart();
+</script>
+</body>
+</html>
