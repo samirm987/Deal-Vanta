@@ -128,7 +128,7 @@ linear-gradient(120deg,#111827,#1f3a68 52%,#ff5a1f);display:grid;grid-template-c
  <section class="grid" id="productGrid"></section>
 </main>
 
-<footer class="footer"><div class="footerInner"><div><b>DealVanta</b><br><small>Smart affiliate shopping marketplace.</small></div><div><small>© <span id="year"></span> DealVanta. Affiliate disclosure: purchases may earn a commission.</small></div></div></footer>
+<footer class="footer"><div class="footerInner"><div><b>DealVanta</b><br><small>Smart affiliate shopping marketplace • commission links preserved exactly.</small></div><div><small>© <span id="year"></span> DealVanta. Affiliate disclosure: purchases may earn a commission.</small></div></div></footer>
 
 <!-- CART -->
 <div class="drawer" id="cartDrawer" onclick="if(event.target===this)closeCart()">
@@ -146,15 +146,19 @@ linear-gradient(120deg,#111827,#1f3a68 52%,#ff5a1f);display:grid;grid-template-c
 
   <div class="importBox">
    <b>⚡ Smart Affiliate Link Importer</b>
-   <div style="font-size:12px;color:#64748b;margin:5px 0 10px">Paste a Meesho, Amazon or Flipkart affiliate/product URL. The importer will try to pull title, image, description, price, rating and other metadata automatically.</div>
+   <div style="font-size:12px;color:#64748b;margin:5px 0 10px">Paste a product/affiliate URL to detect the marketplace. For Meesho Creator links, save the 3 platform-specific commission links below; product details may still need to be entered manually when Meesho does not expose metadata to a static website.</div>
    <div class="importRow"><input id="affiliateUrl" placeholder="Paste your affiliate link here..."><button class="importBtn" onclick="smartImport()">Auto Fill</button></div>
    <div class="status" id="importStatus"></div>
-   <div class="note"><b>Automatic importer:</b> tries marketplace metadata + Product JSON-LD. If Amazon/Flipkart/Meesho blocks access, it will not invent fake title, image, rating or price. For guaranteed production imports, connect an approved marketplace API/backend.</div>
+   <div class="note"><b>Commission-link rule:</b> DealVanta never changes your saved commission URL. Buy Now opens the Primary Commission / Buy Link exactly as saved. The 3 Meesho creator links can be stored separately for Instagram Story, YouTube Shorts/Videos and Facebook Post sharing. Product details are only auto-filled when the marketplace exposes them.</div>
   </div>
 
   <div class="adminGrid">
    <div class="field"><label>Marketplace</label><select id="pSource"><option>Amazon</option><option>Flipkart</option><option>Meesho</option><option>Other</option></select></div>
-   <div class="field"><label>Affiliate / Buy Link *</label><input id="pLink" placeholder="https://...your-affiliate-link..."></div>
+   <div class="field"><label>Primary Commission / Buy Link *</label><input id="pLink" placeholder="Paste the commission link used by Buy Now"></div>
+   <div class="field full"><label>Meesho Instagram Story Commission Link</label><input id="pInstaLink" placeholder="Paste the Instagram Story commission link"></div>
+   <div class="field"><label>Meesho YouTube Shorts/Videos Commission Link</label><input id="pYoutubeLink" placeholder="Paste the YouTube commission link"></div>
+   <div class="field"><label>Meesho Facebook Post Commission Link</label><input id="pFacebookLink" placeholder="Paste the Facebook commission link"></div>
+   <div class="field full"><label>Website Sharing</label><small style="color:#64748b">Save all 3 commission links. Buy Now uses the Primary link. The product card also gets Copy/Share buttons for each saved commission link.</small></div>
    <div class="field full"><label>Product Title *</label><input id="pTitle" placeholder="Product title"></div>
    <div class="field"><label>Price</label><input id="pPrice" placeholder="₹999"></div>
    <div class="field"><label>MRP</label><input id="pMrp" placeholder="₹1,499"></div>
@@ -219,6 +223,12 @@ function cardHTML(p){
     <div class="desc">${esc(p.desc||"Product details available on the marketplace.")}</div>
     <div class="priceRow"><span class="price">${esc(p.price||"See price")}</span>${p.mrp?`<span class="mrp">${esc(p.mrp)}</span>`:""}</div>
     <div class="actions"><button class="buy" onclick="buyNow(${p.id})">Buy Now ↗</button><button class="add" onclick="addCart(${p.id})">＋ Add Cart</button></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+      ${p.instaLink?`<button class="smallBtn" onclick="copyCommission(${p.id},'insta')">📸 Copy Insta Link</button>`:""}
+      ${p.youtubeLink?`<button class="smallBtn" onclick="copyCommission(${p.id},'youtube')">▶️ Copy YouTube Link</button>`:""}
+      ${p.facebookLink?`<button class="smallBtn" onclick="copyCommission(${p.id},'facebook')">f Copy Facebook Link</button>`:""}
+      ${p.link?`<button class="smallBtn" onclick="shareCommission(${p.id})">↗ Share</button>`:""}
+    </div>
    </div>
  </article>`;
 }
@@ -277,13 +287,13 @@ function formatMoney(v){const s=String(v||"").trim();if(/[₹$€£]/.test(s))re
 function livePreview(){ $("previewTitle").textContent=$("pTitle").value||"Your product will appear here."; if($("pImage").value)$("pPreview").src=$("pImage").value; }
 function clearForm(){
  editingId=null;
- ["affiliateUrl","pLink","pTitle","pPrice","pMrp","pRating","pReviews","pCategory","pDiscount","pImage","pDesc"].forEach(id=>$(id).value="");
+ ["affiliateUrl","pLink","pInstaLink","pYoutubeLink","pFacebookLink","pTitle","pPrice","pMrp","pRating","pReviews","pCategory","pDiscount","pImage","pDesc"].forEach(id=>$(id).value="");
  $("pSource").value="Amazon";$("pPreview").src="";$("previewTitle").textContent="Your product will appear here.";$("importStatus").textContent="";
 }
 function saveProduct(){
  const link=$("pLink").value.trim(),title=$("pTitle").value.trim();
  if(!link||!title){alert("Affiliate / Buy Link and Product Title are required.");return}
- const p={id:editingId||Date.now(),source:$("pSource").value,link,title,price:$("pPrice").value.trim(),mrp:$("pMrp").value.trim(),rating:$("pRating").value,reviews:$("pReviews").value.trim(),category:$("pCategory").value.trim()||"Other",discount:$("pDiscount").value.trim(),image:$("pImage").value.trim(),desc:$("pDesc").value.trim()};
+ const p={id:editingId||Date.now(),source:$("pSource").value,link,title,instaLink:$("pInstaLink").value.trim(),youtubeLink:$("pYoutubeLink").value.trim(),facebookLink:$("pFacebookLink").value.trim(),price:$("pPrice").value.trim(),mrp:$("pMrp").value.trim(),rating:$("pRating").value,reviews:$("pReviews").value.trim(),category:$("pCategory").value.trim()||"Other",discount:$("pDiscount").value.trim(),image:$("pImage").value.trim(),desc:$("pDesc").value.trim()};
  if(!store.categories.includes(p.category))store.categories.push(p.category);
  const i=store.products.findIndex(x=>x.id===p.id);if(i>=0)store.products[i]=p;else store.products.unshift(p);
  save();renderCategories();renderProducts();renderAdmin();clearForm();toast("Product published successfully");
@@ -293,9 +303,32 @@ function renderAdmin(){
 }
 function editProduct(id){
  const p=store.products.find(x=>x.id===id);if(!p)return;editingId=id;
- $("pSource").value=p.source||"Other";$("pLink").value=p.link||"";$("pTitle").value=p.title||"";$("pPrice").value=p.price||"";$("pMrp").value=p.mrp||"";
+ $("pSource").value=p.source||"Other";$("pLink").value=p.link||"";$("pInstaLink").value=p.instaLink||"";$("pYoutubeLink").value=p.youtubeLink||"";$("pFacebookLink").value=p.facebookLink||"";$("pTitle").value=p.title||"";$("pPrice").value=p.price||"";$("pMrp").value=p.mrp||"";
  $("pRating").value=p.rating||"";$("pReviews").value=p.reviews||"";$("pCategory").value=p.category||"";$("pDiscount").value=p.discount||"";$("pImage").value=p.image||"";$("pDesc").value=p.desc||"";
  $("pPreview").src=p.image||"";$("previewTitle").textContent=p.title||"";
+}
+function getCommissionLink(p,type){
+  if(!p)return "";
+  if(type==="insta")return p.instaLink||p.link||"";
+  if(type==="youtube")return p.youtubeLink||p.link||"";
+  if(type==="facebook")return p.facebookLink||p.link||"";
+  return p.link||"";
+}
+async function copyCommission(id,type){
+  const p=store.products.find(x=>x.id===id),url=getCommissionLink(p,type);
+  if(!url){toast("No commission link saved");return}
+  try{await navigator.clipboard.writeText(url);toast("Commission link copied");}
+  catch(_){window.prompt("Copy commission link:",url)}
+}
+async function shareCommission(id){
+  const p=store.products.find(x=>x.id===id),url=getCommissionLink(p,"primary");
+  if(!url){toast("No commission link saved");return}
+  const text=(p?.title||"Check this deal")+" — DealVanta";
+  if(navigator.share){
+    try{await navigator.share({title:p?.title||"DealVanta deal",text,url});return}catch(_){}
+  }
+  try{await navigator.clipboard.writeText(url);toast("Commission link copied");}
+  catch(_){window.prompt("Copy commission link:",url)}
 }
 function deleteProduct(id){if(!confirm("Delete this product?"))return;store.products=store.products.filter(p=>p.id!==id);store.cart=store.cart.filter(x=>x.id!==id);save();renderProducts();renderCart();renderAdmin();toast("Product deleted")}
 function toggleWish(id){toast("Saved to wishlist")}
