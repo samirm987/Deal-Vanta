@@ -78,6 +78,8 @@ linear-gradient(120deg,#111827,#1f3a68 52%,#ff5a1f);display:grid;grid-template-c
  .main{padding:0 8px 35px}.grid{grid-template-columns:repeat(2,1fr);gap:9px}.productImage{height:175px}.cardBody{padding:10px}.title{font-size:13px}.desc{font-size:11px}.price{font-size:17px}.actions{grid-template-columns:1fr}.add{display:none}
  .trust{grid-template-columns:1fr 1fr;gap:7px}.trustItem{padding:10px}.toolbarTop{align-items:flex-start}.toolbar h2{font-size:19px}.previewBox{grid-template-columns:1fr}.previewBox img{width:100%;height:190px}.adminGrid{grid-template-columns:1fr}.field.full{grid-column:auto}
 }
+
+.imageTools{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.ratioBtn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 10px;font-weight:850;font-size:11px}.ratioBtn.active{background:#111827;color:#fff;border-color:#111827}.cropArea{background:#0b1220;border-radius:16px;padding:12px;margin-top:10px}.cropCanvasWrap{width:100%;display:grid;place-items:center;overflow:hidden;border-radius:12px;background:#111827;min-height:220px}.cropCanvas{max-width:100%;max-height:360px;display:block}.hidden{display:none!important}.importStatusGood{color:#15803d!important}.importStatusWarn{color:#b45309!important}
 </style>
 </head>
 <body>
@@ -166,7 +168,7 @@ linear-gradient(120deg,#111827,#1f3a68 52%,#ff5a1f);display:grid;grid-template-c
    <div class="field"><label>Reviews</label><input id="pReviews" placeholder="1,234"></div>
    <div class="field"><label>Category</label><input id="pCategory" placeholder="Electronics, Fashion..."></div>
    <div class="field"><label>Discount</label><input id="pDiscount" placeholder="33% OFF"></div>
-   <div class="field full"><label>Product Image URL</label><input id="pImage" placeholder="https://..."><small style="color:#64748b">You can also paste a direct image URL.</small></div>
+   <div class="field full"><label>Product Image</label><input id="pImage" placeholder="https://... direct image URL"><small style="color:#64748b">Or upload the product photo directly. The cropped image is stored with the product.</small><input id="pImageFile" type="file" accept="image/*" style="margin-top:7px"><div class="imageTools"><button type="button" class="ratioBtn active" onclick="setCropRatio('1:1',this)">1:1</button><button type="button" class="ratioBtn" onclick="setCropRatio('4:5',this)">4:5</button><button type="button" class="ratioBtn" onclick="setCropRatio('3:4',this)">3:4</button><button type="button" class="ratioBtn" onclick="setCropRatio('16:9',this)">16:9</button><button type="button" class="ratioBtn" onclick="setCropRatio('original',this)">Original</button><button type="button" class="smallBtn" onclick="cropAndUseImage()">✂️ Crop & Use</button></div><div id="cropArea" class="cropArea hidden"><div class="cropCanvasWrap"><canvas id="cropCanvas" class="cropCanvas"></canvas></div><small style="display:block;color:#cbd5e1;margin-top:7px">Choose an aspect ratio, then Crop & Use.</small></div></div>
    <div class="field full"><label>Description</label><textarea id="pDesc" placeholder="Product description..."></textarea></div>
   </div>
   <div class="previewBox"><img id="pPreview" src="" alt="Preview"><div><b>Live preview</b><p id="previewTitle" style="font-weight:900">Your product will appear here.</p><small style="color:#64748b">Buy Now will always use the saved affiliate link.</small></div></div>
@@ -267,28 +269,52 @@ async function smartImport(){
  let url=raw;if(!/^https?:\/\//i.test(url))url="https://"+url;
  $("pLink").value=url;const low=url.toLowerCase();
  if(low.includes("amazon"))$("pSource").value="Amazon";else if(low.includes("flipkart"))$("pSource").value="Flipkart";else if(low.includes("meesho"))$("pSource").value="Meesho";else $("pSource").value="Other";
- $("importStatus").textContent="⏳ Reading product information…";
- const readers=[async()=>fetch("https://api.microlink.io/?url="+encodeURIComponent(url)+"&meta=true"),async()=>fetch("https://r.jina.ai/http://"+url.replace(/^https?:\/\//i,""))];
+ $("importStatus").className="status";$("importStatus").textContent="⏳ Trying to read real product metadata…";
  let info={title:"",description:"",image:"",price:"",rating:"",reviews:"",mrp:""};
+ const readers=[
+  ()=>fetch("https://api.microlink.io/?url="+encodeURIComponent(url)+"&meta=true"),
+  ()=>fetch("https://r.jina.ai/http://"+url.replace(/^https?:\/\//i,"")),
+  ()=>fetch("https://r.jina.ai/https://"+url.replace(/^https?:\/\//i,""))
+ ];
  for(const read of readers){try{const res=await read();if(!res.ok)continue;const text=await res.text();if(!text)continue;const clean=text.replace(/\\u002F/g,"/");
   try{const j=JSON.parse(text),d=j.data||{},m=d.meta||{};info.title ||= d.title||m.title||"";info.description ||= d.description||m.description||"";info.image ||= (d.image&&d.image.url)||d.image||m.image||"";}catch(_){ }
-  const get=rx=>{const m=clean.match(rx);return m?m[1].replace(/\\"/g,'"').trim():""};
-  info.title ||= get(/<title[^>]*>([\s\S]*?)<\/title>/i);info.description ||= get(/<meta[^>]+(?:name|property)=["'](?:description|og:description)["'][^>]+content=["']([^"']+)/i);info.image ||= get(/<meta[^>]+(?:property|name)=["']og:image["'][^>]+content=["']([^"']+)/i);info.image ||= get(/"image"\s*:\\s*"([^"]+)"/i);info.price ||= get(/"(?:price|lowPrice)"\s*:\\s*"?([₹$€£]?\s?[\d,.]+)/i);info.mrp ||= get(/"(?:highPrice|mrp)"\s*:\\s*"?([₹$€£]?\s?[\d,.]+)/i);info.rating ||= get(/"(?:ratingValue|rating)"\s*:\\s*"?(0?\d(?:\.\d)?)/i);info.reviews ||= get(/"(?:reviewCount|ratingCount)"\s*:\\s*"?(.*?)["},]/i);
+  const get=rx=>{const m=clean.match(rx);return m?decodeHtml(m[1]).trim():""};
+  info.title ||= get(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  info.description ||= get(/<meta[^>]+(?:name|property)=["'](?:description|og:description)["'][^>]+content=["']([^"']+)/i);
+  info.image ||= get(/<meta[^>]+(?:property|name)=["']og:image["'][^>]+content=["']([^"']+)/i);
+  info.image ||= get(/"image"\s*:\s*"([^"]+)"/i);
+  info.price ||= get(/"(?:price|lowPrice)"\s*:\s*"?([₹$€£]?\s?[\d,.]+)/i);
+  info.mrp ||= get(/"(?:highPrice|mrp)"\s*:\s*"?([₹$€£]?\s?[\d,.]+)/i);
+  info.rating ||= get(/"(?:ratingValue|rating)"\s*:\s*"?(0?\d(?:\.\d)?)/i);
+  info.reviews ||= get(/"(?:reviewCount|ratingCount)"\s*:\s*"?([^"},]+)/i);
   const ld=[...clean.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
-  for(const m of ld){try{const data=JSON.parse(m[1].trim()),arr=Array.isArray(data)?data:[data],product=arr.find(x=>x&&(x["@type"]==="Product"||(Array.isArray(x["@type"])&&x["@type"].includes("Product"))));if(product){info.title ||= product.name||"";info.description ||= product.description||"";let im=product.image;if(Array.isArray(im))im=im[0];if(typeof im==="object")im=im.url||im.contentUrl;info.image ||= im||"";const offer=Array.isArray(product.offers)?product.offers[0]:product.offers;if(offer){info.price ||= offer.price!=null?String(offer.price):"";info.mrp ||= offer.highPrice!=null?String(offer.highPrice):""}const agg=product.aggregateRating;if(agg){info.rating ||= agg.ratingValue!=null?String(agg.ratingValue):"";info.reviews ||= String(agg.reviewCount||agg.ratingCount||"")}}}catch(_){}}
+  for(const m of ld){try{const data=JSON.parse(m[1].trim()),arr=Array.isArray(data)?data:[data],product=arr.find(x=>x&&(x["@type"]==="Product"||(Array.isArray(x["@type"])&&x["@type"].includes("Product"))));if(product){info.title ||= product.name||"";info.description ||= product.description||"";let im=product.image;if(Array.isArray(im))im=im[0];if(typeof im==="object")im=im.url||im.contentUrl;info.image ||= im||"";const offer=Array.isArray(product.offers)?product.offers[0]:product.offers;if(offer){info.price ||= offer.price!=null?String(offer.price):"";info.mrp ||= offer.highPrice!=null?String(offer.highPrice):""}const agg=product.aggregateRating;if(agg){info.rating ||= String(agg.ratingValue||"");info.reviews ||= String(agg.reviewCount||agg.ratingCount||"")}}}catch(_){}}
   if(info.title||info.image||info.price||info.rating)break;
- }catch(_){}}
- if(info.title)$("pTitle").value=decodeHtml(info.title).slice(0,220);if(info.description)$("pDesc").value=decodeHtml(info.description).slice(0,1000);if(info.image)$("pImage").value=absoluteUrl(info.image,url);if(info.price)$("pPrice").value=formatMoney(info.price);if(info.mrp)$("pMrp").value=formatMoney(info.mrp);if(info.rating)$("pRating").value=info.rating;if(info.reviews)$("pReviews").value=info.reviews;
- const has=info.title||info.image||info.price||info.rating;if(info.image)$("pPreview").src=absoluteUrl(info.image,url);$("previewTitle").textContent=info.title||"Product data not available from this marketplace.";$("importStatus").textContent=has?"✅ Product data imported. Please verify it, then click Publish Product.":"⚠️ This marketplace blocked automatic product data. The affiliate link was saved; fill the missing fields manually.";
+ }catch(_){} }
+ const generic=/^(affiliate web|affiliate product|product)$/i;if(generic.test(info.title||""))info.title="";
+ if(info.title)$("pTitle").value=decodeHtml(info.title).slice(0,220);
+ if(info.description)$("pDesc").value=decodeHtml(info.description).slice(0,1000);
+ if(info.image){const img=absoluteUrl(info.image,url);$("pImage").value=img;$("pPreview").src=img}
+ if(info.price)$("pPrice").value=formatMoney(info.price);if(info.mrp)$("pMrp").value=formatMoney(info.mrp);if(info.rating)$("pRating").value=info.rating;if(info.reviews)$("pReviews").value=info.reviews;
+ const has=Boolean(info.title||info.image||info.price||info.rating||info.description);const isCollection=/affiliate\.meesho\.com\/collection|\/collection\//i.test(url);
+ if(isCollection&&!has){$("importStatus").className="status importStatusWarn";$("importStatus").textContent="⚠️ Meesho collection link saved. A collection contains multiple products, so one product card cannot be filled with a single title/image/rating automatically. Upload the product photo and enter its details below.";}
+ else if(has){$("importStatus").className="status importStatusGood";$("importStatus").textContent="✅ Real metadata found. Verify it, then Publish Product.";}
+ else{$("importStatus").className="status importStatusWarn";$("importStatus").textContent="⚠️ No product metadata was exposed. Your commission link is saved; use image upload/crop and fill the missing fields.";}
+ livePreview();
 }
 function decodeHtml(s){const t=document.createElement("textarea");t.innerHTML=String(s||"");return t.value.replace(/\s+/g," ").trim()}
 function absoluteUrl(src,base){try{return new URL(String(src).replace(/&amp;/g,"&"),base).href}catch(_){return src}}
 function formatMoney(v){const s=String(v||"").trim();if(/[₹$€£]/.test(s))return s;return s?"₹"+s:""}
+function setCropRatio(r,btn){cropRatio=r;document.querySelectorAll('.ratioBtn').forEach(b=>b.classList.remove('active'));if(btn)btn.classList.add('active');if(cropImage)drawCropCanvas()}
+function drawCropCanvas(){if(!cropImage)return;const c=$("cropCanvas"),ctx=c.getContext('2d'),max=900;let w=cropImage.naturalWidth,h=cropImage.naturalHeight;if(cropRatio!=="original"){const [rw,rh]=cropRatio.split(':').map(Number),target=rw/rh,cur=w/h;if(cur>target)w=Math.round(h*target);else h=Math.round(w/target)}const scale=Math.min(1,max/Math.max(w,h));c.width=Math.max(1,Math.round(w*scale));c.height=Math.max(1,Math.round(h*scale));const sx=(cropImage.naturalWidth-w)/2,sy=(cropImage.naturalHeight-h)/2;ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(cropImage,sx,sy,w,h,0,0,c.width,c.height);$("cropArea").classList.remove('hidden')}
+function loadImageForCrop(src){const im=new Image();im.onload=()=>{cropImage=im;drawCropCanvas()};im.src=src}
+function cropAndUseImage(){if(!cropImage){toast('Choose an image first');return}const data=$("cropCanvas").toDataURL('image/jpeg',0.88);$("pImage").value=data;$("pPreview").src=data;$("cropArea").classList.add('hidden');toast('Cropped image added')}
+function handleImageFile(e){const f=e.target.files&&e.target.files[0];if(!f)return;if(!f.type.startsWith('image/')){toast('Please choose an image');return}const r=new FileReader();r.onload=()=>loadImageForCrop(r.result);r.readAsDataURL(f)}
 function livePreview(){ $("previewTitle").textContent=$("pTitle").value||"Your product will appear here."; if($("pImage").value)$("pPreview").src=$("pImage").value; }
 function clearForm(){
  editingId=null;
  ["affiliateUrl","pLink","pInstaLink","pYoutubeLink","pFacebookLink","pTitle","pPrice","pMrp","pRating","pReviews","pCategory","pDiscount","pImage","pDesc"].forEach(id=>$(id).value="");
- $("pSource").value="Amazon";$("pPreview").src="";$("previewTitle").textContent="Your product will appear here.";$("importStatus").textContent="";
+ $("pSource").value="Amazon";$("pPreview").src="";$("pImageFile").value="";cropImage=null;$("cropArea").classList.add("hidden");$("pImageFile").value="";cropImage=null;$("cropArea").classList.add("hidden");$("previewTitle").textContent="Your product will appear here.";$("importStatus").textContent="";
 }
 function saveProduct(){
  const link=$("pLink").value.trim(),title=$("pTitle").value.trim();
@@ -305,7 +331,7 @@ function editProduct(id){
  const p=store.products.find(x=>x.id===id);if(!p)return;editingId=id;
  $("pSource").value=p.source||"Other";$("pLink").value=p.link||"";$("pInstaLink").value=p.instaLink||"";$("pYoutubeLink").value=p.youtubeLink||"";$("pFacebookLink").value=p.facebookLink||"";$("pTitle").value=p.title||"";$("pPrice").value=p.price||"";$("pMrp").value=p.mrp||"";
  $("pRating").value=p.rating||"";$("pReviews").value=p.reviews||"";$("pCategory").value=p.category||"";$("pDiscount").value=p.discount||"";$("pImage").value=p.image||"";$("pDesc").value=p.desc||"";
- $("pPreview").src=p.image||"";$("previewTitle").textContent=p.title||"";
+ $("pPreview").src=p.image||"";$("pImageFile").value="";cropImage=null;$("cropArea").classList.add("hidden");$("previewTitle").textContent=p.title||"";
 }
 function getCommissionLink(p,type){
   if(!p)return "";
@@ -332,7 +358,7 @@ async function shareCommission(id){
 }
 function deleteProduct(id){if(!confirm("Delete this product?"))return;store.products=store.products.filter(p=>p.id!==id);store.cart=store.cart.filter(x=>x.id!==id);save();renderProducts();renderCart();renderAdmin();toast("Product deleted")}
 function toggleWish(id){toast("Saved to wishlist")}
-$("year").textContent=new Date().getFullYear();
+$("year").textContent=new Date().getFullYear();$("pImageFile").addEventListener("change",handleImageFile);
 renderCategories();renderProducts();renderCart();
 </script>
 </body>
