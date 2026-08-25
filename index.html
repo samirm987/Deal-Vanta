@@ -79,7 +79,7 @@ linear-gradient(120deg,#111827,#1f3a68 52%,#ff5a1f);display:grid;grid-template-c
  .trust{grid-template-columns:1fr 1fr;gap:7px}.trustItem{padding:10px}.toolbarTop{align-items:flex-start}.toolbar h2{font-size:19px}.previewBox{grid-template-columns:1fr}.previewBox img{width:100%;height:190px}.adminGrid{grid-template-columns:1fr}.field.full{grid-column:auto}
 }
 
-.imageTools{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.ratioBtn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 10px;font-weight:850;font-size:11px}.ratioBtn.active{background:#111827;color:#fff;border-color:#111827}.cropArea{background:#0b1220;border-radius:16px;padding:12px;margin-top:10px}.cropCanvasWrap{width:100%;display:grid;place-items:center;overflow:hidden;border-radius:12px;background:#111827;min-height:220px}.cropCanvas{max-width:100%;max-height:360px;display:block}.hidden{display:none!important}.importStatusGood{color:#15803d!important}.importStatusWarn{color:#b45309!important}
+.imageTools{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}.ratioBtn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 10px;font-weight:850;font-size:11px}.ratioBtn.active{background:#111827;color:#fff;border-color:#111827}.cropArea{background:#0b1220;border-radius:16px;padding:12px;margin-top:10px}.cropCanvasWrap{width:100%;display:grid;place-items:center;overflow:hidden;border-radius:12px;background:#111827;min-height:220px}.cropCanvas{max-width:100%;max-height:360px;display:block}.hidden{display:none!important}.manual-fields-hidden{display:none!important}.importStatusGood{color:#15803d!important}.importStatusWarn{color:#b45309!important}
 </style>
 </head>
 <body>
@@ -148,13 +148,13 @@ linear-gradient(120deg,#111827,#1f3a68 52%,#ff5a1f);display:grid;grid-template-c
 
   <div class="importBox">
    <b>⚡ Smart Affiliate Link Importer</b>
-   <div style="font-size:12px;color:#64748b;margin:5px 0 10px">Paste a product/affiliate URL to detect the marketplace. For Meesho Creator links, save the 3 platform-specific commission links below; product details may still need to be entered manually when Meesho does not expose metadata to a static website.</div>
-   <div class="importRow"><input id="affiliateUrl" placeholder="Paste your affiliate link here..."><button class="importBtn" onclick="smartImport()">Auto Fill</button></div>
-   <div class="status" id="importStatus"></div>
-   <div class="note"><b>Commission-link rule:</b> DealVanta never changes your saved commission URL. Buy Now opens the Primary Commission / Buy Link exactly as saved. The 3 Meesho creator links can be stored separately for Instagram Story, YouTube Shorts/Videos and Facebook Post sharing. Product details are only auto-filled when the marketplace exposes them.</div>
+   <div style="font-size:12px;color:#64748b;margin:5px 0 10px">Paste ONE Meesho/Amazon/Flipkart affiliate or commission URL. DealVanta will try to open the public page in a remote browser, extract every available product, and publish the results automatically. No title, price, image, rating or description entry is required.</div>
+   <div class="importRow"><input id="affiliateUrl" placeholder="Paste your affiliate link here..."><button class="importBtn" onclick="smartImport()">⚡ Auto Import</button></div>
+   <div class="status" id="importStatus">ONLY the affiliate/commission link is required. Paste it and DealVanta will fetch and publish automatically.</div>
+   <div class="note"><b>Commission-link rule:</b> DealVanta never changes your saved commission URL. Buy Now opens the Primary Commission / Buy Link exactly as saved. Your pasted commission URL is preserved exactly and used for Buy Now. Product data is extracted from the rendered public page when available.</div>
   </div>
 
-  <div class="adminGrid">
+  <div class="adminGrid manual-fields-hidden">
    <div class="field"><label>Marketplace</label><select id="pSource"><option>Amazon</option><option>Flipkart</option><option>Meesho</option><option>Other</option></select></div>
    <div class="field"><label>Primary Commission / Buy Link *</label><input id="pLink" placeholder="Paste the commission link used by Buy Now"></div>
    <div class="field full"><label>Meesho Instagram Story Commission Link</label><input id="pInstaLink" placeholder="Paste the Instagram Story commission link"></div>
@@ -171,8 +171,8 @@ linear-gradient(120deg,#111827,#1f3a68 52%,#ff5a1f);display:grid;grid-template-c
    <div class="field full"><label>Product Image</label><input id="pImage" placeholder="https://... direct image URL"><small style="color:#64748b">Or upload the product photo directly. The cropped image is stored with the product.</small><input id="pImageFile" type="file" accept="image/*" style="margin-top:7px"><div class="imageTools"><button type="button" class="ratioBtn active" onclick="setCropRatio('1:1',this)">1:1</button><button type="button" class="ratioBtn" onclick="setCropRatio('4:5',this)">4:5</button><button type="button" class="ratioBtn" onclick="setCropRatio('3:4',this)">3:4</button><button type="button" class="ratioBtn" onclick="setCropRatio('16:9',this)">16:9</button><button type="button" class="ratioBtn" onclick="setCropRatio('original',this)">Original</button><button type="button" class="smallBtn" onclick="cropAndUseImage()">✂️ Crop & Use</button></div><div id="cropArea" class="cropArea hidden"><div class="cropCanvasWrap"><canvas id="cropCanvas" class="cropCanvas"></canvas></div><small style="display:block;color:#cbd5e1;margin-top:7px">Choose an aspect ratio, then Crop & Use.</small></div></div>
    <div class="field full"><label>Description</label><textarea id="pDesc" placeholder="Product description..."></textarea></div>
   </div>
-  <div class="previewBox"><img id="pPreview" src="" alt="Preview"><div><b>Live preview</b><p id="previewTitle" style="font-weight:900">Your product will appear here.</p><small style="color:#64748b">Buy Now will always use the saved affiliate link.</small></div></div>
-  <div style="display:flex;gap:8px;margin-top:15px;flex-wrap:wrap"><button class="primary" onclick="saveProduct()">＋ Publish Product</button><button class="select" onclick="clearForm()">Clear</button></div>
+  <div class="previewBox manual-fields-hidden"><img id="pPreview" src="" alt="Preview"><div><b>Live preview</b><p id="previewTitle" style="font-weight:900">Your product will appear here.</p><small style="color:#64748b">Buy Now will always use the saved affiliate link.</small></div></div>
+  <div class="manual-fields-hidden"></div>
   <div class="adminList"><h3>Published Products</h3><div id="adminProducts"></div></div>
  </div>
 </div>
@@ -265,43 +265,135 @@ function toast(t){$("toast").textContent=t;$("toast").style.display="block";clea
 
 async function smartImport(){
  const raw=$("affiliateUrl").value.trim();
- if(!raw){$("importStatus").textContent="Paste an affiliate/product link first.";return}
+ if(!raw){$("importStatus").className="status importStatusWarn";$("importStatus").textContent="❌ Paste your Meesho commission/affiliate link first.";return}
  let url=raw;if(!/^https?:\/\//i.test(url))url="https://"+url;
- $("pLink").value=url;const low=url.toLowerCase();
- if(low.includes("amazon"))$("pSource").value="Amazon";else if(low.includes("flipkart"))$("pSource").value="Flipkart";else if(low.includes("meesho"))$("pSource").value="Meesho";else $("pSource").value="Other";
- $("importStatus").className="status";$("importStatus").textContent="⏳ Trying to read real product metadata…";
- let info={title:"",description:"",image:"",price:"",rating:"",reviews:"",mrp:""};
- const readers=[
-  ()=>fetch("https://api.microlink.io/?url="+encodeURIComponent(url)+"&meta=true"),
-  ()=>fetch("https://r.jina.ai/http://"+url.replace(/^https?:\/\//i,"")),
-  ()=>fetch("https://r.jina.ai/https://"+url.replace(/^https?:\/\//i,""))
+ const low=url.toLowerCase();
+ const source=low.includes("meesho")?"Meesho":low.includes("amazon")?"Amazon":low.includes("flipkart")?"Flipkart":"Other";
+ $("pSource").value=source;$("pLink").value=url;
+ $("importStatus").className="status";
+ $("importStatus").textContent="⏳ Opening the affiliate page and extracting products automatically…";
+
+ // Browser-side HTML cannot reliably read marketplace pages because of CORS/anti-bot rules.
+ // Microlink's remote browser renders the public URL and returns the DOM to this static site.
+ const functionCode=`async function({ page }) {
+   const clean=s=>String(s||'').replace(/\\s+/g,' ').trim();
+   const abs=u=>{try{return new URL(u,location.href).href}catch(e){return ''}};
+   const badTitle=t=>!t || /^(affiliate web|affiliate product|meesho|shop now|buy now|home)$/i.test(clean(t));
+   const priceOf=s=>{const m=String(s||'').match(/(?:₹|Rs\\.?|INR)\\s*[0-9][0-9,]*(?:\\.[0-9]{1,2})?/i);return m?m[0]:''};
+   const ratingOf=s=>{const m=String(s||'').match(/(?:★|rating)\\s*([0-5](?:\\.[0-9])?)/i);return m?m[1]:''};
+   const reviewsOf=s=>{const m=String(s||'').match(/(?:reviews?|ratings?)\\s*[:\\-]?\\s*([0-9][0-9,]*)/i);return m?m[1]:''};
+   const out=[],seen=new Set();
+   const add=p=>{
+     p.title=clean(p.title);p.description=clean(p.description);p.image=abs(p.image||'');p.price=clean(p.price);p.mrp=clean(p.mrp);p.rating=clean(p.rating);p.reviews=clean(p.reviews);p.category=clean(p.category);
+     if(badTitle(p.title))return;
+     if(!p.image && !p.price && !p.description)return;
+     const key=(p.title+'|'+p.image).toLowerCase();if(seen.has(key))return;seen.add(key);out.push(p);
+   };
+   try{await page.waitForTimeout(3500);}catch(e){}
+   try{await page.evaluate(async()=>{for(let i=0;i<5;i++){window.scrollTo(0,document.body.scrollHeight);await new Promise(r=>setTimeout(r,600));}window.scrollTo(0,0);});}catch(e){}
+   try{await page.waitForTimeout(1000);}catch(e){}
+
+   // JSON-LD first: this is the cleanest source when the marketplace exposes Product schema.
+   const jsons=await page.$$eval('script[type="application/ld+json"]',els=>els.map(e=>e.textContent));
+   const walk=v=>{
+     if(!v)return;
+     if(Array.isArray(v)){v.forEach(walk);return;}
+     if(typeof v!=='object')return;
+     const types=Array.isArray(v['@type'])?v['@type']:[v['@type']];
+     if(types.includes('Product')){
+       let im=v.image;if(Array.isArray(im))im=im[0];if(im&&typeof im==='object')im=im.url||im.contentUrl;
+       let of=Array.isArray(v.offers)?v.offers[0]:v.offers;let ar=v.aggregateRating||{};
+       add({title:v.name,description:v.description,image:im,price:of?.price!=null?String(of.price):'',mrp:of?.highPrice!=null?String(of.highPrice):'',rating:ar.ratingValue!=null?String(ar.ratingValue):'',reviews:ar.reviewCount!=null?String(ar.reviewCount):(ar.ratingCount!=null?String(ar.ratingCount):''),category:v.category});
+     }
+     Object.values(v).forEach(walk);
+   };
+   for(const s of jsons){try{walk(JSON.parse(s))}catch(e){}}
+
+   // Generic visual-card extraction for JS marketplaces / Meesho collections.
+   const cards=await page.evaluate(()=>{
+     const money=/₹\\s*[0-9][0-9,]*(?:\\.[0-9]{1,2})?|Rs\\.?\\s*[0-9][0-9,]*(?:\\.[0-9]{1,2})?/i;
+     const all=[...document.querySelectorAll('a,article,li,div')];
+     const candidates=[];const seen=new Set();
+     for(const el of all){
+       const imgs=[...el.querySelectorAll('img')].filter(i=>(i.currentSrc||i.src||i.getAttribute('data-src')));
+       if(!imgs.length)continue;
+       const txt=(el.innerText||'').replace(/\\s+/g,' ').trim();
+       if(txt.length<8||txt.length>900)continue;
+       const m=txt.match(money);if(!m && txt.length<35)continue;
+       const img=imgs.sort((a,b)=>((b.naturalWidth||300)*(b.naturalHeight||300))-((a.naturalWidth||300)*(a.naturalHeight||300)))[0];
+       const src=img.currentSrc||img.src||img.getAttribute('data-src')||'';
+       const lines=txt.split(/\\n+/).map(x=>x.trim()).filter(Boolean);
+       const title=lines.find(x=>x.length>=10&&x.length<=180&&!/^(buy now|shop now|add to cart|₹|rs\\.?|rating|reviews?)/i.test(x))||'';
+       const href=el.closest('a')?.href||el.querySelector('a')?.href||'';
+       const key=title+'|'+src;if(seen.has(key))continue;seen.add(key);
+       candidates.push({title,description:lines.filter(x=>x!==title&&!money.test(x)).slice(0,3).join(' '),image:src,price:m?.[0]||'',href,rating:(txt.match(/(?:★|rating)\\s*([0-5](?:\\.[0-9])?)/i)||[])[1]||'',reviews:(txt.match(/(?:reviews?|ratings?)\\s*[:\\-]?\\s*([0-9][0-9,]*)/i)||[])[1]||''});
+     }
+     return candidates.slice(0,80);
+   });
+   cards.forEach(add);
+
+   // Fallback to normalized page metadata for a single product page.
+   const meta=await page.evaluate(()=>{const q=(a,b)=>document.querySelector('meta['+a+'="'+b+'"]')?.content||'';return {title:q('property','og:title')||q('name','title')||document.title,description:q('property','og:description')||q('name','description'),image:q('property','og:image')||q('name','twitter:image')};});
+   if(!out.length && !badTitle(meta.title))add({title:meta.title,description:meta.description,image:meta.image,price:'',mrp:'',rating:'',reviews:'',category:''});
+   return {products:out.slice(0,50),pageTitle:clean(meta.title)};
+ }`;
+
+ let payload=null,lastError='';
+ const endpoints=[
+   'https://api.microlink.io/?url='+encodeURIComponent(url)+'&function='+encodeURIComponent(functionCode)+'&meta=true&prerender=true&waitForTimeout=4500&timeout=28000',
+   'https://api.microlink.io/?url='+encodeURIComponent(url)+'&meta=true&prerender=true&waitForTimeout=4500&timeout=28000'
  ];
- for(const read of readers){try{const res=await read();if(!res.ok)continue;const text=await res.text();if(!text)continue;const clean=text.replace(/\\u002F/g,"/");
-  try{const j=JSON.parse(text),d=j.data||{},m=d.meta||{};info.title ||= d.title||m.title||"";info.description ||= d.description||m.description||"";info.image ||= (d.image&&d.image.url)||d.image||m.image||"";}catch(_){ }
-  const get=rx=>{const m=clean.match(rx);return m?decodeHtml(m[1]).trim():""};
-  info.title ||= get(/<title[^>]*>([\s\S]*?)<\/title>/i);
-  info.description ||= get(/<meta[^>]+(?:name|property)=["'](?:description|og:description)["'][^>]+content=["']([^"']+)/i);
-  info.image ||= get(/<meta[^>]+(?:property|name)=["']og:image["'][^>]+content=["']([^"']+)/i);
-  info.image ||= get(/"image"\s*:\s*"([^"]+)"/i);
-  info.price ||= get(/"(?:price|lowPrice)"\s*:\s*"?([₹$€£]?\s?[\d,.]+)/i);
-  info.mrp ||= get(/"(?:highPrice|mrp)"\s*:\s*"?([₹$€£]?\s?[\d,.]+)/i);
-  info.rating ||= get(/"(?:ratingValue|rating)"\s*:\s*"?(0?\d(?:\.\d)?)/i);
-  info.reviews ||= get(/"(?:reviewCount|ratingCount)"\s*:\s*"?([^"},]+)/i);
-  const ld=[...clean.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
-  for(const m of ld){try{const data=JSON.parse(m[1].trim()),arr=Array.isArray(data)?data:[data],product=arr.find(x=>x&&(x["@type"]==="Product"||(Array.isArray(x["@type"])&&x["@type"].includes("Product"))));if(product){info.title ||= product.name||"";info.description ||= product.description||"";let im=product.image;if(Array.isArray(im))im=im[0];if(typeof im==="object")im=im.url||im.contentUrl;info.image ||= im||"";const offer=Array.isArray(product.offers)?product.offers[0]:product.offers;if(offer){info.price ||= offer.price!=null?String(offer.price):"";info.mrp ||= offer.highPrice!=null?String(offer.highPrice):""}const agg=product.aggregateRating;if(agg){info.rating ||= String(agg.ratingValue||"");info.reviews ||= String(agg.reviewCount||agg.ratingCount||"")}}}catch(_){}}
-  if(info.title||info.image||info.price||info.rating)break;
- }catch(_){} }
- const generic=/^(affiliate web|affiliate product|product)$/i;if(generic.test(info.title||""))info.title="";
- if(info.title)$("pTitle").value=decodeHtml(info.title).slice(0,220);
- if(info.description)$("pDesc").value=decodeHtml(info.description).slice(0,1000);
- if(info.image){const img=absoluteUrl(info.image,url);$("pImage").value=img;$("pPreview").src=img}
- if(info.price)$("pPrice").value=formatMoney(info.price);if(info.mrp)$("pMrp").value=formatMoney(info.mrp);if(info.rating)$("pRating").value=info.rating;if(info.reviews)$("pReviews").value=info.reviews;
- const has=Boolean(info.title||info.image||info.price||info.rating||info.description);const isCollection=/affiliate\.meesho\.com\/collection|\/collection\//i.test(url);
- if(isCollection&&!has){$("importStatus").className="status importStatusWarn";$("importStatus").textContent="⚠️ Meesho collection link saved. A collection contains multiple products, so one product card cannot be filled with a single title/image/rating automatically. Upload the product photo and enter its details below.";}
- else if(has){$("importStatus").className="status importStatusGood";$("importStatus").textContent="✅ Real metadata found. Verify it, then Publish Product.";}
- else{$("importStatus").className="status importStatusWarn";$("importStatus").textContent="⚠️ No product metadata was exposed. Your commission link is saved; use image upload/crop and fill the missing fields.";}
- livePreview();
+ for(const endpoint of endpoints){
+   try{
+     const res=await fetch(endpoint,{method:'GET'});
+     const j=await res.json();
+     if(!res.ok){lastError=j?.message||('HTTP '+res.status);continue;}
+     if(j?.data?.function){payload=j.data.function;}
+     if(typeof payload==='string'){try{payload=JSON.parse(payload)}catch(e){}}
+     if(payload?.value)payload=payload.value;
+     if(payload?.data)payload=payload.data;
+     if(payload?.products?.length)break;
+     const d=j?.data||{};
+     if(!payload?.products?.length && (d.title||d.description||d.image)){
+       payload={products:[{title:d.title||'',description:d.description||'',image:d.image?.url||d.image||'',price:'',mrp:'',rating:'',reviews:'',category:''}]};
+     }
+     if(payload?.products?.length)break;
+   }catch(e){lastError=e?.message||String(e)}
+ }
+
+ const products=Array.isArray(payload?.products)?payload.products:[];
+ if(!products.length){
+   $("importStatus").className="status importStatusWarn";
+   $("importStatus").textContent="❌ No product data could be read from this affiliate URL. The commission link is not changed. This can happen when Meesho temporarily blocks automated page reading.";
+   return;
+ }
+
+ let published=0,updated=0;
+ for(const rawP of products){
+   const title=decodeHtml(rawP.title||'').trim();
+   if(!title||/^affiliate (web|product)$/i.test(title))continue;
+   const p={
+     id:Date.now()+published+updated+Math.floor(Math.random()*1000),source:source,link:url,
+     instaLink:'',youtubeLink:'',facebookLink:'',title:title.slice(0,220),
+     price:formatMoney(rawP.price||''),mrp:formatMoney(rawP.mrp||''),rating:String(rawP.rating||''),reviews:String(rawP.reviews||''),
+     category:decodeHtml(rawP.category||'Other')||'Other',discount:'',image:absoluteUrl(rawP.image||'',url),desc:decodeHtml(rawP.description||'').slice(0,1000)
+   };
+   // Estimate discount only when both prices are genuinely available.
+   const a=money(p.price),b=money(p.mrp);if(a&&b&&b>a)p.discount=Math.round((1-a/b)*100)+'% OFF';
+   const existing=store.products.find(x=>x.link===url&&x.title.toLowerCase()===title.toLowerCase());
+   if(existing){Object.assign(existing,p,{id:existing.id});updated++;}
+   else{store.products.unshift(p);published++;}
+   if(p.category&&!store.categories.includes(p.category))store.categories.push(p.category);
+ }
+ save();renderCategories();renderProducts();renderAdmin();clearForm();
+ $("importStatus").className="status importStatusGood";
+ $("importStatus").textContent=`✅ ${published+updated} product${published+updated===1?'':'s'} automatically ${published?'imported & published':'updated'}. No manual details were required.`;
+ toast(published?`${published} product${published>1?'s':''} published automatically`:`${updated} product${updated>1?'s':''} updated automatically`);
+ $("affiliateUrl").value='';
 }
+// Paste a link = start the same automatic import flow. No second form step.
+document.addEventListener('DOMContentLoaded',()=>{ const input=$("affiliateUrl"); if(input) input.addEventListener('paste',()=>setTimeout(()=>{if(input.value.trim()) smartImport()},120)); });
+
 function decodeHtml(s){const t=document.createElement("textarea");t.innerHTML=String(s||"");return t.value.replace(/\s+/g," ").trim()}
 function absoluteUrl(src,base){try{return new URL(String(src).replace(/&amp;/g,"&"),base).href}catch(_){return src}}
 function formatMoney(v){const s=String(v||"").trim();if(/[₹$€£]/.test(s))return s;return s?"₹"+s:""}
