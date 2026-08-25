@@ -149,7 +149,7 @@ linear-gradient(120deg,#111827,#1f3a68 52%,#ff5a1f);display:grid;grid-template-c
    <div style="font-size:12px;color:#64748b;margin:5px 0 10px">Paste a Meesho, Amazon or Flipkart affiliate/product URL. The importer will try to pull title, image, description, price, rating and other metadata automatically.</div>
    <div class="importRow"><input id="affiliateUrl" placeholder="Paste your affiliate link here..."><button class="importBtn" onclick="smartImport()">Auto Fill</button></div>
    <div class="status" id="importStatus"></div>
-   <div class="note">Important: Amazon/Meesho/Flipkart may block direct scraping. This static website uses metadata extraction when available. For guaranteed automatic imports, connect the optional server/API endpoint described in README.</div>
+   <div class="note"><b>Automatic importer:</b> tries marketplace metadata + Product JSON-LD. If Amazon/Flipkart/Meesho blocks access, it will not invent fake title, image, rating or price. For guaranteed production imports, connect an approved marketplace API/backend.</div>
   </div>
 
   <div class="adminGrid">
@@ -210,7 +210,7 @@ function stars(r){
 function cardHTML(p){
  return `<article class="card">
    <button class="wish" onclick="toggleWish(${p.id})">♡</button>
-   <div class="productImage">${p.image?`<img src="${esc(p.image)}" alt="${esc(p.title)}" onerror="this.style.display='none'">`:`<div class="placeholder">🛍️</div>`}
+   <div class="productImage">${p.image?`<img src="${esc(p.image)}" alt="${esc(p.title)}" onerror="this.onerror=null;this.style.display='none';this.parentElement.insertAdjacentHTML('beforeend','<div class="placeholder">🛍️</div>')">`:`<div class="placeholder">🛍️</div>`}
      <span class="sourceBadge">${esc(p.source||"Other")}</span>${p.discount?`<span class="discount">${esc(p.discount)}</span>`:""}
    </div>
    <div class="cardBody">
@@ -252,35 +252,28 @@ function closeAdmin(){$("adminModal").classList.remove("open")}
 function toast(t){$("toast").textContent=t;$("toast").style.display="block";clearTimeout(window.__toast);window.__toast=setTimeout(()=>$("toast").style.display="none",2200)}
 
 async function smartImport(){
- const url=$("affiliateUrl").value.trim(); if(!url){$("importStatus").textContent="Paste an affiliate link first.";return}
- $("importStatus").textContent="⏳ Trying to read product metadata...";
- $("pLink").value=url;
- // Marketplace detection
- const low=url.toLowerCase();
- if(low.includes("amazon"))$("pSource").value="Amazon";
- else if(low.includes("flipkart"))$("pSource").value="Flipkart";
- else if(low.includes("meesho"))$("pSource").value="Meesho";
- else $("pSource").value="Other";
- try{
-   const endpoint="https://api.microlink.io/?url="+encodeURIComponent(url)+"&meta=true";
-   const res=await fetch(endpoint,{headers:{"Accept":"application/json"}});
-   if(!res.ok)throw new Error("metadata service unavailable");
-   const j=await res.json(),d=j.data||{};
-   const title=d.title||d.meta?.title||"";
-   const desc=d.description||d.meta?.description||"";
-   const image=d.image?.url||d.logo?.url||d.meta?.image||"";
-   if(title)$("pTitle").value=title;
-   if(desc)$("pDesc").value=desc;
-   if(image)$("pImage").value=image;
-   if(d.url)$("pLink").value=url;
-   $("pPreview").src=image||"";
-   $("previewTitle").textContent=title||"Metadata found — fill remaining fields if needed.";
-   $("importStatus").textContent=(title||image)?"✅ Product metadata imported. Check the fields before publishing.":"⚠️ The marketplace blocked metadata. Fill details manually.";
- }catch(e){
-   $("importStatus").textContent="⚠️ Automatic metadata could not be read. The affiliate link is saved; enter product details manually.";
- }
+ const raw=$("affiliateUrl").value.trim();
+ if(!raw){$("importStatus").textContent="Paste an affiliate/product link first.";return}
+ let url=raw;if(!/^https?:\/\//i.test(url))url="https://"+url;
+ $("pLink").value=url;const low=url.toLowerCase();
+ if(low.includes("amazon"))$("pSource").value="Amazon";else if(low.includes("flipkart"))$("pSource").value="Flipkart";else if(low.includes("meesho"))$("pSource").value="Meesho";else $("pSource").value="Other";
+ $("importStatus").textContent="⏳ Reading product information…";
+ const readers=[async()=>fetch("https://api.microlink.io/?url="+encodeURIComponent(url)+"&meta=true"),async()=>fetch("https://r.jina.ai/http://"+url.replace(/^https?:\/\//i,""))];
+ let info={title:"",description:"",image:"",price:"",rating:"",reviews:"",mrp:""};
+ for(const read of readers){try{const res=await read();if(!res.ok)continue;const text=await res.text();if(!text)continue;const clean=text.replace(/\\u002F/g,"/");
+  try{const j=JSON.parse(text),d=j.data||{},m=d.meta||{};info.title ||= d.title||m.title||"";info.description ||= d.description||m.description||"";info.image ||= (d.image&&d.image.url)||d.image||m.image||"";}catch(_){ }
+  const get=rx=>{const m=clean.match(rx);return m?m[1].replace(/\\"/g,'"').trim():""};
+  info.title ||= get(/<title[^>]*>([\\s\\S]*?)<\\/title>/i);info.description ||= get(/<meta[^>]+(?:name|property)=["'](?:description|og:description)["'][^>]+content=["']([^"']+)/i);info.image ||= get(/<meta[^>]+(?:property|name)=["']og:image["'][^>]+content=["']([^"']+)/i);info.image ||= get(/"image"\\s*:\\s*"([^"]+)"/i);info.price ||= get(/"(?:price|lowPrice)"\\s*:\\s*"?([₹$€£]?\\s?[\\d,.]+)/i);info.mrp ||= get(/"(?:highPrice|mrp)"\\s*:\\s*"?([₹$€£]?\\s?[\\d,.]+)/i);info.rating ||= get(/"(?:ratingValue|rating)"\\s*:\\s*"?(0?\\d(?:\\.\\d)?)/i);info.reviews ||= get(/"(?:reviewCount|ratingCount)"\\s*:\\s*"?(.*?)["},]/i);
+  const ld=[...clean.matchAll(/<script[^>]+type=["']application\\/ld\\+json["'][^>]*>([\\s\\S]*?)<\\/script>/gi)];
+  for(const m of ld){try{const data=JSON.parse(m[1].trim()),arr=Array.isArray(data)?data:[data],product=arr.find(x=>x&&(x["@type"]==="Product"||(Array.isArray(x["@type"])&&x["@type"].includes("Product"))));if(product){info.title ||= product.name||"";info.description ||= product.description||"";let im=product.image;if(Array.isArray(im))im=im[0];if(typeof im==="object")im=im.url||im.contentUrl;info.image ||= im||"";const offer=Array.isArray(product.offers)?product.offers[0]:product.offers;if(offer){info.price ||= offer.price!=null?String(offer.price):"";info.mrp ||= offer.highPrice!=null?String(offer.highPrice):""}const agg=product.aggregateRating;if(agg){info.rating ||= agg.ratingValue!=null?String(agg.ratingValue):"";info.reviews ||= String(agg.reviewCount||agg.ratingCount||"")}}}catch(_){}}
+  if(info.title||info.image||info.price||info.rating)break;
+ }catch(_){}}
+ if(info.title)$("pTitle").value=decodeHtml(info.title).slice(0,220);if(info.description)$("pDesc").value=decodeHtml(info.description).slice(0,1000);if(info.image)$("pImage").value=absoluteUrl(info.image,url);if(info.price)$("pPrice").value=formatMoney(info.price);if(info.mrp)$("pMrp").value=formatMoney(info.mrp);if(info.rating)$("pRating").value=info.rating;if(info.reviews)$("pReviews").value=info.reviews;
+ const has=info.title||info.image||info.price||info.rating;if(info.image)$("pPreview").src=absoluteUrl(info.image,url);$("previewTitle").textContent=info.title||"Product data not available from this marketplace.";$("importStatus").textContent=has?"✅ Product data imported. Please verify it, then click Publish Product.":"⚠️ This marketplace blocked automatic product data. The affiliate link was saved; fill the missing fields manually.";
 }
-["pTitle","pPrice","pMrp","pRating","pReviews","pCategory","pDiscount","pImage","pDesc","pLink"].forEach(id=>document.addEventListener("input",e=>{if(e.target.id===id)livePreview()}));
+function decodeHtml(s){const t=document.createElement("textarea");t.innerHTML=String(s||"");return t.value.replace(/\s+/g," ").trim()}
+function absoluteUrl(src,base){try{return new URL(String(src).replace(/&amp;/g,"&"),base).href}catch(_){return src}}
+function formatMoney(v){const s=String(v||"").trim();if(/[₹$€£]/.test(s))return s;return s?"₹"+s:""}
 function livePreview(){ $("previewTitle").textContent=$("pTitle").value||"Your product will appear here."; if($("pImage").value)$("pPreview").src=$("pImage").value; }
 function clearForm(){
  editingId=null;
